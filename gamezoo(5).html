@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameZoo — Free Online Games</title>
+<meta name="description" content="GameZoo is a free browser game arcade. Pick an enclosure, tap play, and dive into dozens of driving, shooting, puzzle, and arcade games.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1B1030;
+  --ink-soft: #2A1B45;
+  --cream: #FFF7EA;
+  --cream-dim: #C9BFDD;
+  --lime: #C6F135;
+  --coral: #FF6B4A;
+  --teal: #29D0C0;
+  --gold: #F4B93B;
+  --radius-card: 18px;
+  --radius-chip: 999px;
+  --shadow-hard: 6px 6px 0 rgba(0,0,0,0.35);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: 'Manrope', system-ui, sans-serif;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(198,241,53,0.10), transparent 40%),
+    radial-gradient(circle at 90% 15%, rgba(255,107,74,0.12), transparent 45%),
+    radial-gradient(circle at 50% 90%, rgba(41,208,192,0.08), transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+a { color: inherit; }
+
+/* ---------- Header / marquee ---------- */
+
+.site-header {
+  position: relative;
+  z-index: 2;
+  padding: 10px 0 26px;
+  text-align: center;
+  background: linear-gradient(180deg, var(--ink-soft), var(--ink) 85%);
+  border-bottom: 3px solid #000;
+}
+
+.marquee {
+  height: 14px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--gold) 0 8px,
+    transparent 8px 26px
+  );
+  background-position: center;
+  mask-image: radial-gradient(circle 5px, black 96%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle 5px, black 96%, transparent 100%);
+  mask-repeat: repeat-x;
+  -webkit-mask-repeat: repeat-x;
+  mask-size: 26px 14px;
+  -webkit-mask-size: 26px 14px;
+  animation: twinkle 1.6s steps(2) infinite;
+}
+
+.marquee-bottom { margin-top: 18px; animation-delay: .8s; }
+
+@keyframes twinkle {
+  50% { filter: brightness(0.35); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee { animation: none; }
+}
+
+.header-inner {
+  padding-top: 18px;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-badge {
+  font-size: 2rem;
+  transform: rotate(-8deg);
+}
+
+.logo-text {
+  font-family: 'Bungee', system-ui, sans-serif;
+  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  letter-spacing: 0.5px;
+  color: var(--cream);
+  text-shadow: 4px 4px 0 #000;
+}
+
+.logo-accent { color: var(--lime); }
+
+.tagline {
+  margin: 10px 0 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--cream-dim);
+  letter-spacing: 0.3px;
+}
+
+/* ---------- Control deck ---------- */
+
+.control-deck {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 34px 20px 10px;
+}
+
+.search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--ink-soft);
+  border: 3px solid #000;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-hard);
+  padding: 4px 16px;
+}
+
+.search-icon {
+  font-size: 1.2rem;
+  color: var(--teal);
+  margin-right: 10px;
+}
+
+#search {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--cream);
+  font-family: 'Manrope', sans-serif;
+  font-size: 1rem;
+  padding: 14px 0;
+}
+
+#search::placeholder { color: var(--cream-dim); }
+
+.result-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--gold);
+  white-space: nowrap;
+  padding-left: 10px;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--cream);
+  background: var(--ink-soft);
+  border: 2px solid #000;
+  border-radius: var(--radius-chip);
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.chip:hover { transform: translateY(-2px); }
+
+.chip.active {
+  background: var(--lime);
+  color: #111;
+}
+
+/* ---------- Grid ---------- */
+
+.grid-wrap {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 20px 80px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 22px;
+}
+
+.empty-state {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--cream-dim);
+  padding: 60px 20px;
+}
+
+.card {
+  position: relative;
+  background: var(--ink-soft);
+  border: 3px solid #000;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-hard);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover, .card:focus-visible {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 rgba(0,0,0,0.35);
+}
+
+.card:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+
+.card-media {
+  position: relative;
+  aspect-ratio: 4/3;
+  background: #000;
+  overflow: hidden;
+}
+
+.card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .card-media img { transform: scale(1.06); }
+
+.card-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(0,0,0,0.55) 0 5px,
+    transparent 5px 26px
+  );
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.card:hover .card-media::after { opacity: 1; }
+
+.play-glyph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--lime);
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 1;
+}
+
+.card:hover .play-glyph { opacity: 1; transform: scale(1); }
+
+.card-plate {
+  padding: 12px 14px 14px;
+  border-top: 3px solid #000;
+  background: var(--ink);
+}
+
+.card-title {
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.25;
+  margin: 0 0 8px;
+  color: var(--cream);
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tag-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--ink);
+  background: var(--teal);
+  border-radius: 5px;
+  padding: 2px 6px;
+  font-weight: 700;
+}
+
+.tag-pill:nth-child(2n) { background: var(--gold); }
+.tag-pill:nth-child(3n) { background: var(--coral); color: #1a0a05; }
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 24px 20px 50px;
+  font-size: 0.82rem;
+  color: var(--cream-dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.site-footer a { color: var(--lime); text-decoration: underline; }
+
+/* ---------- Inline player (no popup) ---------- */
+
+.player-section {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 26px 20px 10px;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--ink);
+  background: var(--lime);
+  border: 2px solid #000;
+  border-radius: var(--radius-chip);
+  padding: 10px 18px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.35);
+  transition: transform 0.12s ease;
+}
+
+.back-btn:hover, .back-btn:focus-visible {
+  transform: translate(-2px, -2px);
+}
+
+.player-frame {
+  width: 100%;
+  background: var(--ink-soft);
+  border: 3px solid #000;
+  border-radius: 16px;
+  box-shadow: 8px 8px 0 rgba(0,0,0,0.4);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.player-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--ink);
+  border-bottom: 3px solid #000;
+}
+
+.player-title {
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.95rem;
+  color: var(--lime);
+}
+
+.player-btn {
+  font-size: 1rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 2px solid #000;
+  background: var(--teal);
+  color: #08201d;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.player-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+}
+
+.player-stage iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  .player-stage { aspect-ratio: 4/5; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<header class="site-header">
+  <div class="marquee" aria-hidden="true"></div>
+  <div class="header-inner">
+    <a class="logo" href="#top">
+      <span class="logo-badge">🐾</span>
+      <span class="logo-text">Game<span class="logo-accent">Zoo</span></span>
+    </a>
+    <p class="tagline">a wild little arcade for your free period</p>
+  </div>
+  <div class="marquee marquee-bottom" aria-hidden="true"></div>
+</header>
+
+<main id="top">
+
+  <section id="playerSection" class="player-section" hidden>
+    <button id="backBtn" class="back-btn">← Back to all games</button>
+    <div class="player-frame">
+      <div class="player-bar">
+        <span id="playerTitle" class="player-title">—</span>
+        <button id="fullscreenBtn" class="player-btn" title="Fullscreen">⛶</button>
+      </div>
+      <div class="player-stage">
+        <iframe id="gameFrame" src="" title="Game" allow="fullscreen; gamepad; autoplay" allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section id="browseSection" class="control-deck">
+    <div class="search-wrap">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input id="search" type="text" placeholder="Search the enclosures… (try “drift” or “sniper”)" autocomplete="off">
+      <span id="resultCount" class="result-count"></span>
+    </div>
+    <nav id="chipRow" class="chip-row" aria-label="Filter by category"></nav>
+  </section>
+
+  <section id="gridSection" class="grid-wrap">
+    <div id="grid" class="grid"></div>
+    <p id="emptyState" class="empty-state" hidden>No enclosure matches that search. Try a different word or clear the filter 🦥</p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>Games are embedded via iframe from <a href="https://www.onlinegames.io" target="_blank" rel="noopener">OnlineGames.io</a>, a free publisher embed program. GameZoo just builds the cages.</p>
+</footer>
+
+<script>
+const GAMES = [
+  { t:'Marble Run', e:'https://cloud.onlinegames.io/games/2026/galatrix/marble-run/game.html', i:'https://www.onlinegames.io/media/posts/1354/responsive/marble-run-xs.webp', g:["3d", "arcade", "avoid", "ball", "crazy", "endless", "fun", "html5", "kids", "mobile", "physics", "running", "skill", "water"] },
+  { t:'Stack Fire Ball', e:'https://www.onlinegames.io/games/2021/unity/stack-fire-ball/index.html', i:'https://www.onlinegames.io/media/posts/184/responsive/Stack-Fire-Ball-Game-xs.jpg', g:["1-player", "3d", "arcade", "avoid", "ball", "color", "crazy", "destroy", "free", "mobile", "mouse", "skill"] },
+  { t:'Steal Brainrots Multiplayer', e:'https://cloud.onlinegames.io/games/2026/unity/steal-brainrots-multiplayer/game.html', i:'https://www.onlinegames.io/media/posts/1340/responsive/steal-brainrots-multiplayer-2-xs.webp', g:["3d", "avoid", "brainrot", "defense", "free", "fun", "funny", "idle", "io-games", "multiplayer", "obby", "roblox", "strategy"] },
+  { t:'GTA Simulator', e:'https://www.onlinegames.io/games/2023/unity2/gta-simulator/index.html', i:'https://www.onlinegames.io/media/posts/416/responsive/GTA-Simulator-xs.jpg', g:["1-player", "3d", "action", "car", "driving", "free", "gta", "shooting", "simulator", "traffic", "unity"] },
+  { t:'Love Tester', e:'https://www.onlinegames.io/games/2021/3/love-tester/index.html', i:'https://www.onlinegames.io/media/posts/152/responsive/love-tester-xs.jpg', g:["1-player", "2d", "free", "fun", "funny", "girl", "html5", "kids", "love", "mobile"] },
+  { t:'Stickman GTA City', e:'https://cloud.onlinegames.io/games/2024/unity3/stickman-gta-city/index-og.html', i:'https://www.onlinegames.io/media/posts/900/responsive/stickman-gta-city-free-xs.jpg', g:["1-player", "3d", "action", "adventure", "battle", "car", "driving", "free", "gta", "gun", "shooting", "simulator", "traffic", "unity", "weapon"] },
+  { t:'Real Flight Simulator', e:'https://cloud.onlinegames.io/games/2023/unity2/real-flight-simulator/index.html', i:'https://www.onlinegames.io/media/posts/342/responsive/Real-Flight-Simulator-2-xs.jpg', g:["1-player", "3d", "airplane", "flying", "free", "simulator", "unity"] },
+  { t:'Drift King', e:'https://www.onlinegames.io/games/2024/unity/drift-king/index.html', i:'https://www.onlinegames.io/media/posts/729/responsive/Drift-King-xs.jpg', g:["3d", "car", "crazy", "drift", "driving", "free", "multiplayer", "simulator", "speed", "unity"] },
+  { t:'CS Online', e:'https://www.onlinegames.io/games/2023/unity2/cs-online/index.html', i:'https://www.onlinegames.io/media/posts/434/responsive/CS-Online-xs.jpg', g:["3d", "action", "battle", "battle-royale", "first-person-shooter", "free", "gun", "multiplayer", "shooting", "unity", "war", "weapon"] },
+  { t:'Stickman Parkour', e:'https://cloud.onlinegames.io/games/2024/construct/219/stickman-parkour/index-og.html', i:'https://www.onlinegames.io/media/posts/871/responsive/stickman-parkour-OG-xs.jpg', g:["1-player", "2d", "action", "adventure", "arcade", "free", "fun", "mobile", "parkour", "physics", "running", "stickman"] },
+  { t:'Dublix', e:'https://cloud.onlinegames.io/games/2025/unity4/dublix/game-og.html', i:'https://www.onlinegames.io/media/posts/1126/responsive/dublix-xs.webp', g:["3d", "adventure", "crazy", "free", "fun", "kart", "multiplayer", "music", "parkour", "racing", "roblox", "unity"] },
+  { t:'Snaker io', e:'https://cloud.onlinegames.io/games/2026/more/snaker-io/game.html', i:'https://www.onlinegames.io/media/posts/1261/responsive/snaker-io-xs.webp', g:["2d", "arcade", "arena", "avoid", "battle-royale", "endless", "free", "fun", "html5", "io-games", "kids", "mobile", "mouse", "multiplayer", "snake"] },
+  { t:'Cube Worlds', e:'https://cloud.onlinegames.io/games/2025/html/cube-worlds/index-og.html', i:'https://www.onlinegames.io/media/posts/986/responsive/Cube-Worlds-xs.jpg', g:["1-player", "3d", "adventure", "block", "crafting", "free", "sandbox", "simulator"] },
+  { t:'CubeCraft Survival', e:'https://cloud.onlinegames.io/games/2025/unity4/cubecraft-survival/index-og.html', i:'https://www.onlinegames.io/media/posts/1113/responsive/cubecraft-survival-xs.webp', g:["1-player", "3d", "adventure", "block", "crafting", "free", "pixel", "sandbox", "strategy", "survival", "unity"] },
+  { t:'Drift Hunters Pro', e:'https://www.onlinegames.io/games/2023/unity/drift-hunters-pro/index.html', i:'https://www.onlinegames.io/media/posts/397/responsive/Drift-Hunters-Pro-xs.jpg', g:["3d", "car", "crash", "drift", "driving", "free", "multiplayer", "racing", "speed", "stunt", "unity"] },
+  { t:'Edys Car Simulator', e:'https://www.onlinegames.io/games/2022/unity/edys-car-simulator/index.html', i:'https://www.onlinegames.io/media/posts/238/responsive/Edys-Car-Simulator-Online-xs.jpg', g:["1-player", "3d", "car", "crash", "driving", "free", "racing", "simulator", "speed", "stunt"] },
+  { t:'Madalin Stunt Cars Pro', e:'https://www.onlinegames.io/games/2023/unity/madalin-stunt-cars-pro/index.html', i:'https://www.onlinegames.io/media/posts/401/responsive/Madalin-Stunt-Cars-Pro-Game-xs.jpg', g:["3d", "car", "crazy", "drift", "driving", "free", "multiplayer", "speed", "stunt", "unity"] },
+  { t:'Checkout Frenzy', e:'https://cloud.onlinegames.io/games/2025/unity/checkout-frenzy/index-og.html', i:'https://www.onlinegames.io/media/posts/974/responsive/checkout-frenzy-cashier-game-xs.jpg', g:["1-player", "3d", "free", "organizing", "simulator", "tycoon", "unity"] },
+  { t:'WarStrike', e:'https://cloud.onlinegames.io/games/2024/unity3/warstrike/index-og.html', i:'https://www.onlinegames.io/media/posts/870/responsive/WarStrike-Online-xs.jpg', g:["3d", "action", "battle", "first-person-shooter", "free", "gun", "shooting", "simulator", "sniper", "unity", "war", "weapon"] },
+  { t:'Drunken Duel', e:'https://www.onlinegames.io/games/2024/code/2/drunken-duel/index.html', i:'https://www.onlinegames.io/media/posts/698/responsive/Drunken-Duel-xs.jpg', g:["2-player", "2d", "action", "arcade", "battle", "combat", "free", "fun", "funny", "html5", "physics", "stickman"] },
+  { t:'Solitaire Adventure', e:'https://www.onlinegames.io/games/2022/unity4/solitaire-adventure/index.html', i:'https://www.onlinegames.io/media/posts/519/responsive/Solitaire-Adventure-Tripeaks-xs.jpg', g:["1-player", "2d", "board", "card", "free", "html5", "logic", "mouse", "puzzle", "solitaire"] },
+  { t:'Guerrillas io', e:'https://www.onlinegames.io/games/2023/unity2/guerrillas-io/index.html', i:'https://www.onlinegames.io/media/posts/423/responsive/Guerillas-io-xs.jpg', g:["3d", "action", "army", "battle-royale", "first-person-shooter", "free", "io-games", "shooting"] },
+  { t:'Wasteland Shooters', e:'https://www.onlinegames.io/games/2021/unity2/wasteland-shooters/index.html', i:'https://www.onlinegames.io/media/posts/218/responsive/Wasteland-Shooters-xs.jpg', g:["3d", "action", "battle", "first-person-shooter", "free", "gun", "io-games", "multiplayer", "shooting", "war", "weapon"] },
+  { t:'Crazy Strike Force', e:'https://www.onlinegames.io/games/2023/unity/crazy-strike-force/index.html', i:'https://www.onlinegames.io/media/posts/366/responsive/Crazy-Strike-Force-xs.jpg', g:["3d", "action", "armor", "battle", "battle-royale", "crazy", "first-person-shooter", "free", "gun", "shooting", "unity", "war", "weapon"] },
+  { t:'FPS Strike', e:'https://cloud.onlinegames.io/games/2024/unity2/fps-strike/index-og.html', i:'https://www.onlinegames.io/media/posts/902/responsive/fps-strike-online-xs.jpg', g:["3d", "action", "arena", "army", "battle", "battle-royale", "first-person-shooter", "free", "gun", "multiplayer", "shooting", "simulator", "sniper", "unity", "war", "weapon"] },
+  { t:'Tile Match', e:'https://cloud.onlinegames.io/games/2025/unity/tile-match/index-og.html', i:'https://www.onlinegames.io/media/posts/939/responsive/tile-match-xs.jpg', g:["1-player", "2d", "brain", "cozy", "free", "logic", "mouse", "puzzle", "strategy"] },
+  { t:'99 Nights in the Forest', e:'https://cloud.onlinegames.io/games/2026/unity/99-nights-in-the-forest-survival/game.html', i:'https://www.onlinegames.io/media/posts/1190/responsive/99-nights-in-the-forest-xs.webp', g:["1-player", "3d", "adventure", "crafting", "defense", "free", "mouse", "roblox", "survival", "unity", "weapon"] },
+  { t:'Cat Simulator', e:'https://www.onlinegames.io/games/2022/unity4/cat-simulator/index.html', i:'https://www.onlinegames.io/media/posts/330/responsive/Cat-Simulator-Online-xs.jpg', g:["1-player", "3d", "adventure", "animal", "cat", "cozy", "crazy", "cute", "free", "fun", "kids", "pet", "simulator"] },
+  { t:'Fast Food Rush', e:'https://cloud.onlinegames.io/games/2025/unity/fast-food-rush/index-og.html', i:'https://www.onlinegames.io/media/posts/979/responsive/fast-food-rush-xs.jpg', g:["1-player", "3d", "cooking", "food", "free", "mouse", "restaurant", "simulator", "strategy", "tycoon"] },
+  { t:'Stickman Destruction', e:'https://www.onlinegames.io/games/2021/unity3/stickman-destruction/index.html', i:'https://www.onlinegames.io/media/posts/233/responsive/Stickman-Destruction-xs.jpg', g:["1-player", "2d", "crash", "crazy", "destroy", "free", "fun", "funny", "mobile", "physics", "simulator", "stickman"] },
+  { t:'Burnout City', e:'https://cloud.onlinegames.io/games/2024/unity/burnout-city/index-og.html', i:'https://www.onlinegames.io/media/posts/861/responsive/burnoutcity-xs.jpg', g:["1-player", "3d", "car", "drift", "driving", "free", "gta", "racing", "simulator", "speed", "stunt", "unity"] },
+  { t:'8 Ball Pool Billiard', e:'https://www.onlinegames.io/games/2022/unity3/8-ball-pool-billiard/index.html', i:'https://www.onlinegames.io/media/posts/442/responsive/8-Ball-Pool-Billiard-xs.jpg', g:["3d", "ball", "free", "mouse", "multiplayer", "pool", "sports", "strategy", "unity"] },
+  { t:'Car Football', e:'https://www.onlinegames.io/games/2023/construct/198/car-football/index.html', i:'https://www.onlinegames.io/media/posts/405/responsive/Car-Football-xs.jpg', g:["2-player", "2d", "arena", "ball", "car", "crazy", "driving", "free", "fun", "physics", "soccer", "sports", "world-cup"] },
+  { t:'Legendary Sniper', e:'https://www.onlinegames.io/games/2021/unity3/legendary-sniper/index.html', i:'https://www.onlinegames.io/media/posts/596/responsive/Legendary-Sniper-xs.jpg', g:["1-player", "3d", "action", "army", "battle", "first-person-shooter", "free", "mouse", "shooting", "sniper", "war", "weapon"] },
+  { t:'Police Chase Drifter', e:'https://www.onlinegames.io/games/2021/3/police-chase-drifter/index.html', i:'https://www.onlinegames.io/media/posts/155/responsive/Police-Chase-Drifter-Online-xs.jpg', g:["1-player", "2d", "car", "crazy", "drift", "driving", "free", "gta", "html5", "mobile", "police", "skill", "speed", "traffic"] },
+  { t:'Highway Racer Pro', e:'https://www.onlinegames.io/games/2024/unity/highway-racer-pro/index.html', i:'https://www.onlinegames.io/media/posts/822/responsive/Highway-Racer-Pro-xs.jpg', g:["3d", "car", "crash", "crazy", "driving", "endless", "free", "multiplayer", "racing", "skill", "speed", "traffic", "unity"] },
+  { t:'Trains io', e:'https://www.onlinegames.io/games/2023/construct/235/trains-io/index.html', i:'https://www.onlinegames.io/media/posts/470/responsive/Trains-io-Game-xs.jpg', g:["3d", "arcade", "driving", "free", "fun", "io-games", "mobile", "mouse", "train"] },
+  { t:'Fast Food Manager', e:'https://cloud.onlinegames.io/games/2025/unity4/fast-food-manager/index-og.html', i:'https://www.onlinegames.io/media/posts/1114/responsive/fast-food-manager-xs.webp', g:["1-player", "3d", "cooking", "food", "free", "fun", "idle", "restaurant", "simulator", "strategy", "tycoon", "unity"] },
+  { t:'Cake Match Puzzle', e:'https://cloud.onlinegames.io/games/2024/unity3/cake-match-puzzle/index-og.html', i:'https://www.onlinegames.io/media/posts/908/responsive/55-xs.jpg', g:["1-player", "2d", "brain", "cozy", "cute", "food", "free", "html5", "logic", "mobile", "organizing", "puzzle", "restaurant"] },
+  { t:'Mini Cars Racing', e:'https://cloud.onlinegames.io/games/2021/unity/mini-cars-racing/index-og.html', i:'https://www.onlinegames.io/media/posts/1010/responsive/Mini-Cars-Racing-xs.jpg', g:["2-player", "3d", "arcade", "car", "crazy", "driving", "free", "fun", "racing", "speed", "stunt", "unity"] },
+  { t:'Basket Hoop', e:'https://cloud.onlinegames.io/games/2024/construct/311/basket-hoop/index-og.html', i:'https://www.onlinegames.io/media/posts/843/responsive/Basket-Hoop-xs.jpg', g:["1-player", "2d", "ball", "basketball", "endless", "free", "html5", "mobile", "mouse", "physics", "skill", "sports"] },
+  { t:'Basketball io', e:'https://www.onlinegames.io/games/2022/unity3/basketball-io/index.html', i:'https://www.onlinegames.io/media/posts/302/responsive/Basketball-io-2-xs.jpg', g:["3d", "arcade", "arena", "ball", "basketball", "free", "fun", "io-games", "simulator", "sports"] },
+  { t:'Poop Clicker', e:'https://www.onlinegames.io/games/2024/construct/292/poop-clicker/index.html', i:'https://www.onlinegames.io/media/posts/742/responsive/Poop-Clicker-xs.jpg', g:["1-player", "2d", "clicker", "crazy", "free", "funny", "html5", "idle", "mobile", "mouse"] },
+  { t:'Backflip Challenge', e:'https://cloud.onlinegames.io/games/2026/unity/backflip-challenge/game.html', i:'https://www.onlinegames.io/media/posts/1203/responsive/backflip-challenge-xs.webp', g:["1-player", "3d", "avoid", "free", "funny", "mobile", "mouse", "physics", "skill", "sports", "unity", "water"] },
+  { t:'2048', e:'https://cloud.onlinegames.io/games/2025/html/2048/index.html', i:'https://www.onlinegames.io/media/posts/916/responsive/2048-xs.jpg', g:["1-player", "2d", "brain", "free", "html5", "logic", "math", "merge", "mobile", "mouse", "puzzle", "strategy"] },
+  { t:'Kick The Dummy', e:'https://www.onlinegames.io/games/2022/construct/153/kick-the-dummy/index.html', i:'https://www.onlinegames.io/media/posts/414/responsive/Kick-The-Dummy-Game-xs.jpg', g:["1-player", "2d", "clicker", "crazy", "destroy", "free", "fun", "funny", "mobile", "mouse", "physics", "sandbox"] },
+  { t:'Capybara Clicker Pro', e:'https://www.onlinegames.io/games/2023/q2/capybara-clicker-pro/index.html', i:'https://www.onlinegames.io/media/posts/554/responsive/Capybara-Clicker-Pro-xs.jpg', g:["1-player", "2d", "animal", "clicker", "cute", "endless", "free", "html5", "idle", "mobile", "mouse"] },
+  { t:'Velocity Rush', e:'https://cloud.onlinegames.io/games/2026/unity/velocity-rush/game.html', i:'https://www.onlinegames.io/media/posts/1265/responsive/velocity-rush-xs.webp', g:["1-player", "3d", "arcade", "avoid", "ball", "crazy", "free", "fun", "parkour", "physics", "running", "skill", "speed", "unity"] },
+  { t:'Survival Island', e:'https://cloud.onlinegames.io/games/2024/unity2/survival-island/index-og.html', i:'https://www.onlinegames.io/media/posts/970/responsive/Survival-Island-xs.jpg', g:["1-player", "3d", "adventure", "crafting", "farming", "free", "simulator", "survival", "unity"] },
+  { t:'Urban Sniper', e:'https://www.onlinegames.io/games/2022/unity2/urban-sniper/index.html', i:'https://www.onlinegames.io/media/posts/322/responsive/Urban-Sniper-Game-xs.jpg', g:["1-player", "3d", "action", "first-person-shooter", "free", "gun", "mouse", "police", "shooting", "sniper", "unity"] },
+  { t:'Geometry Vector', e:'https://cloud.onlinegames.io/games/2026/construct/329/geometry-vector/game.html', i:'https://www.onlinegames.io/media/posts/1246/responsive/geometry-vector-xs.webp', g:["1-player", "2d", "arcade", "avoid", "clicker", "color", "crazy", "free", "html5", "mouse", "music", "physics", "skill"] },
+  { t:'Tank Arena', e:'https://cloud.onlinegames.io/games/2025/construct/293/tank-arena/index-og.html', i:'https://www.onlinegames.io/media/posts/956/responsive/Tank-Arena-Online-xs.jpg', g:["2-player", "2d", "action", "arcade", "arena", "crazy", "free", "fun", "tank"] },
+  { t:'Poly Racing Cars', e:'https://cloud.onlinegames.io/games/2022/unity3/poly-racing-cars/index-og.html', i:'https://www.onlinegames.io/media/posts/835/responsive/Poly-racing-cars-image-xs.jpg', g:["2-player", "3d", "car", "crazy", "driving", "free", "multiplayer", "racing", "simulator", "speed", "unity"] },
+  { t:'Monster Survivors', e:'https://cloud.onlinegames.io/games/2025/unity/monster-survivors/index-og.html', i:'https://www.onlinegames.io/media/posts/942/responsive/Monster-survivors-xs.jpg', g:["1-player", "2d", "action", "battle", "combat", "fantasy", "free", "rpg", "survival", "weapon"] },
+  { t:'Pinball Simulator', e:'https://www.onlinegames.io/games/2021/unity2/pinball-simulator/index.html', i:'https://www.onlinegames.io/media/posts/460/responsive/Pinball-Simulator-xs.jpg', g:["1-player", "3d", "arcade", "ball", "free", "fun", "physics", "pinball", "simulator", "unity"] },
+  { t:'Crazy Drifter', e:'https://www.onlinegames.io/games/2022/unity3/crazy-drifter/index.html', i:'https://www.onlinegames.io/media/posts/314/responsive/Crazy-Drifter-xs.jpg', g:["1-player", "3d", "car", "crash", "crazy", "drift", "driving", "free", "racing", "simulator", "speed", "stunt"] },
+  { t:'Taxi Simulator', e:'https://www.onlinegames.io/games/2022/unity/taxi-simulator/index.html', i:'https://www.onlinegames.io/media/posts/465/responsive/Taxi-Simulator-xs.jpg', g:["1-player", "3d", "car", "driving", "free", "simulator", "taxi", "traffic", "unity"] },
+  { t:'Secret Sniper Agent', e:'https://www.onlinegames.io/games/2022/construct/129/secret-sniper-agent/index.html', i:'https://www.onlinegames.io/media/posts/753/responsive/Secret-Sniper-Agent-xs.jpg', g:["1-player", "2d", "action", "first-person-shooter", "free", "gun", "html5", "mobile", "mouse", "shooting", "sniper"] },
+  { t:'Airplane Racer', e:'https://www.onlinegames.io/games/2022/unity/airplane-racer/index.html', i:'https://www.onlinegames.io/media/posts/268/responsive/Airplane-Racer-xs.jpg', g:["2-player", "3d", "action", "airplane", "avoid", "driving", "flying", "free", "racing", "simulator"] },
+  { t:'Block Blast', e:'https://cloud.onlinegames.io/games/2024/unity3/block-blast/index-og.html', i:'https://www.onlinegames.io/media/posts/876/responsive/block-blast-xs.jpg', g:["1-player", "2d", "arcade", "block", "brain", "color", "cozy", "free", "fun", "logic", "puzzle"] },
+  { t:'Agent Smith', e:'https://www.onlinegames.io/games/2021/unity/agent-smith/index.html', i:'https://www.onlinegames.io/media/posts/189/responsive/Agent-Smith-2-xs.jpg', g:["3d", "action", "adventure", "crazy", "free", "gta", "gun", "shooting", "war", "weapon"] },
+  { t:'Army Combat', e:'https://www.onlinegames.io/games/2021/unity/army-combat/index.html', i:'https://www.onlinegames.io/media/posts/664/responsive/Army-Combat-xs.jpg', g:["3d", "action", "army", "battle", "battle-royale", "combat", "defense", "first-person-shooter", "free", "gun", "shooting", "simulator", "strategy", "unity", "war", "weapon"] },
+  { t:'Drift Rider', e:'https://www.onlinegames.io/games/2023/unity3/drift-rider/index.html', i:'https://www.onlinegames.io/media/posts/553/responsive/Drift-Rider-xs.jpg', g:["1-player", "3d", "car", "crazy", "drift", "driving", "free", "simulator", "unity"] },
+  { t:'Mahjong', e:'https://cloud.onlinegames.io/games/2025/unity/mahjong/index-og.html', i:'https://www.onlinegames.io/media/posts/966/responsive/Mahjong-xs.jpg', g:["1-player", "2d", "brain", "cozy", "free", "html5", "logic", "mouse", "puzzle", "strategy"] },
+  { t:'Drako IO', e:'https://cloud.onlinegames.io/games/2022/unity/drako-io/game.html', i:'https://www.onlinegames.io/media/posts/1304/responsive/drako-io-xs.webp', g:["3d", "action", "adventure", "arena", "battle", "combat", "defense", "fantasy", "free", "hero", "io-games", "multiplayer", "rpg", "skill", "strategy", "unity", "war", "weapon"] },
+  { t:'Police Traffic', e:'https://www.onlinegames.io/games/2021/unity/police-traffic/index.html', i:'https://www.onlinegames.io/media/posts/187/responsive/Pollice-Traffic-xs.jpg', g:["1-player", "3d", "car", "driving", "free", "police", "racing", "speed", "stunt", "traffic", "unity"] },
+  { t:'Monster Truck City Parking', e:'https://www.onlinegames.io/games/2021/unity/monster-truck-city-parking/index.html', i:'https://www.onlinegames.io/media/posts/582/responsive/Monster-Truck-City-Parking-xs.jpg', g:["1-player", "3d", "car", "crazy", "driving", "free", "parking", "police", "simulator", "truck", "unity"] },
+  { t:'Bus Subway Runner', e:'https://www.onlinegames.io/games/2022/unity/bus-subway-runner/index.html', i:'https://www.onlinegames.io/media/posts/235/responsive/Bus-Subway-Runner-Game-xs.jpg', g:["1-player", "3d", "arcade", "avoid", "crazy", "endless", "free", "fun", "parkour", "running", "skateboarding", "skill", "speed", "traffic"] },
+  { t:'Jeep Racing', e:'https://www.onlinegames.io/games/2023/freezenova.com/jeep-racing/index.html', i:'https://www.onlinegames.io/media/posts/564/responsive/Jeep-Racing-xs.jpg', g:["2d", "car", "crazy", "driving", "free", "html5", "mobile", "multiplayer", "physics", "racing", "truck"] },
+  { t:'2 Player Crazy Racer', e:'https://www.onlinegames.io/games/2022/unity3/2-player-crazy-racer/index.html', i:'https://www.onlinegames.io/media/posts/617/responsive/2-Player-Crazy-Racer-xs.jpg', g:["2-player", "3d", "arcade", "car", "crazy", "driving", "free", "fun", "racing", "speed", "stunt", "unity"] },
+  { t:'Age Of Battle', e:'https://cloud.onlinegames.io/games/2026/unity/age-of-battle/game.html', i:'https://www.onlinegames.io/media/posts/1201/responsive/age-of-battle-xs.webp', g:["1-player", "2d", "battle", "defense", "free", "fun", "mobile", "mouse", "strategy", "unity"] },
+  { t:'F1 Drift Racer', e:'https://www.onlinegames.io/games/2022/construct/134/f1-drift-racer/index.html', i:'https://www.onlinegames.io/media/posts/504/responsive/F1-Drift-Racer-xs.jpg', g:["2d", "car", "drift", "formula-1", "free", "html5", "mobile", "multiplayer", "racing", "speed"] },
+  { t:'Sniper Elite', e:'https://www.onlinegames.io/games/2021/1/sniper-elite/index.html', i:'https://www.onlinegames.io/media/posts/127/responsive/Sniper-Elite-Online-xs.jpg', g:["1-player", "2d", "first-person-shooter", "free", "fun", "gun", "html5", "mobile", "mouse", "shooting", "sniper", "weapon"] },
+  { t:'Basketball King', e:'https://cloud.onlinegames.io/games/2024/construct/316/basketball-king/index-og.html', i:'https://www.onlinegames.io/media/posts/907/responsive/basketball-king-xs.jpg', g:["2-player", "2d", "arcade", "arena", "ball", "basketball", "co-op", "free", "fun", "io-games", "sports"] },
+  { t:'Nova Clicker', e:'https://cloud.onlinegames.io/games/2024/construct/314/nova-clicker/index-og.html', i:'https://www.onlinegames.io/media/posts/981/responsive/Nova-Clicker-xs.jpg', g:["1-player", "2d", "clicker", "crazy", "free", "funny", "html5", "idle", "mobile", "mouse"] },
+  { t:'Crazy Ball Adventures', e:'https://www.onlinegames.io/games/2021/unity2/crazy-ball-adventures/index.html', i:'https://www.onlinegames.io/media/posts/760/responsive/Crazy-Ball-Game-xs.jpg', g:["1-player", "arcade", "ball", "free", "fun", "parkour", "running", "unity"] },
+  { t:'Geometry Dash FreezeNova', e:'https://www.onlinegames.io/games/2023/q2/geometry-dash-freezenova/index.html', i:'https://www.onlinegames.io/media/posts/510/responsive/Geometry-Dash-FreezeNova-xs.jpg', g:["1-player", "2d", "arcade", "avoid", "crazy", "free", "mobile", "mouse", "parkour", "skill"] },
+  { t:'Dinosaur Game', e:'https://www.onlinegames.io/games/2023/q2/dinosaur-game/index.html', i:'https://www.onlinegames.io/media/posts/417/responsive/Dinosaur-Game-Online-xs.jpg', g:["1-player", "2d", "animal", "arcade", "endless", "free", "kids", "mobile", "mouse", "pixel"] },
+  { t:'Chess FreezeNova', e:'https://cloud.onlinegames.io/games/2025/unity3/chess/index-og.html', i:'https://www.onlinegames.io/media/posts/1116/responsive/chess-freezenova-xs.webp', g:["2-player", "2d", "board", "brain", "chess", "cozy", "free", "logic", "mouse", "strategy", "unity"] },
+  { t:'Solitaire', e:'https://cloud.onlinegames.io/games/2025/html/solitaire/index-og.html', i:'https://www.onlinegames.io/media/posts/1007/responsive/solitaire-xs.jpg', g:["1-player", "2d", "board", "card", "free", "logic", "mobile", "mouse", "solitaire"] },
+  { t:'Highway Traffic', e:'https://www.onlinegames.io/games/2022/unity/highway-traffic/index.html', i:'https://www.onlinegames.io/media/posts/32/responsive/Highway-Traffic-2-xs.jpg', g:["1-player", "3d", "car", "crash", "crazy", "driving", "endless", "free", "police", "racing", "speed", "traffic", "unity"] },
+  { t:'Football King', e:'https://www.onlinegames.io/games/2024/construct/226/football-king/index.html', i:'https://www.onlinegames.io/media/posts/739/responsive/Football-King-xs.jpg', g:["2-player", "2d", "arcade", "arena", "ball", "co-op", "crazy", "free", "fun", "funny", "html5", "mobile", "soccer", "sports", "world-cup"] },
+  { t:'Head Soccer Football', e:'https://www.onlinegames.io/games/2022/unity/head-soccer-football/index.html', i:'https://www.onlinegames.io/media/posts/482/responsive/Head-Soccer-Football-xs.jpg', g:["2d", "arcade", "arena", "ball", "crazy", "free", "fun", "funny", "kids", "mobile", "physics", "soccer", "sports", "unity", "world-cup"] },
+  { t:'Snake Football', e:'https://www.onlinegames.io/games/2023/construct/200/snake-football/index.html', i:'https://www.onlinegames.io/media/posts/706/responsive/Snake-Football-xs.jpg', g:["2-player", "2d", "animal", "arcade", "ball", "crazy", "free", "fun", "html5", "kids", "mobile", "snake", "soccer", "sports"] },
+  { t:'Zombie War Defense', e:'https://www.onlinegames.io/games/2022/unity/zombie-war-defense/index.html', i:'https://www.onlinegames.io/media/posts/466/responsive/Zombie-War-Defense-Game-xs.jpg', g:["1-player", "2d", "action", "battle", "fantasy", "free", "gun", "horror", "mouse", "shooting", "tower-defense", "unity", "war", "zombie"] },
+  { t:'Zombie Sniper', e:'https://www.onlinegames.io/games/2022/construct/116/zombie-sniper/index.html', i:'https://www.onlinegames.io/media/posts/745/responsive/Zombie-Sniper-xs.jpg', g:["1-player", "2d", "action", "battle", "combat", "fantasy", "first-person-shooter", "free", "gun", "html5", "mobile", "mouse", "shooting", "sniper", "weapon", "zombie"] },
+  { t:'Among Impostor', e:'https://www.onlinegames.io/games/2023/construct/234/among-impostor/index.html', i:'https://www.onlinegames.io/media/posts/472/responsive/Among-Impostor-xs.jpg', g:["3d", "action", "avoid", "crazy", "free", "mobile", "mouse"] },
+  { t:'Crazy Stickman Physics', e:'https://www.onlinegames.io/games/2023/construct/185/crazy-stickman-physics/index.html', i:'https://www.onlinegames.io/media/posts/715/responsive/Crazy-Stickman-Physics-xs.jpg', g:["1-player", "2d", "crash", "crazy", "destroy", "free", "html5", "mobile", "mouse", "physics", "stickman"] },
+  { t:'Get On Top', e:'https://www.onlinegames.io/games/2024/code/6/get-on-top/index.html', i:'https://www.onlinegames.io/media/posts/697/responsive/Get-on-Top-xs.jpg', g:["2-player", "2d", "action", "arcade", "battle", "combat", "crazy", "free", "fun", "html5", "physics", "stickman"] },
+  { t:'Kingdom Attack', e:'https://www.onlinegames.io/games/2021/unity3/kingdom-attack/index.html', i:'https://www.onlinegames.io/media/posts/371/responsive/Kingdom-Attack-xs.jpg', g:["1-player", "2d", "defense", "fantasy", "free", "mobile", "mouse", "simulator", "strategy", "survival", "tower-defense", "unity", "war"] },
+  { t:'Crown Defense', e:'https://cloud.onlinegames.io/games/2025/construct/337/crown-defense/index-og.html', i:'https://www.onlinegames.io/media/posts/1098/responsive/crown-defense-online-xs.webp', g:["2d", "idle", "mobile", "strategy", "tower-defense"] },
+  { t:'Stick Guys Defense', e:'https://www.onlinegames.io/games/2022/unity3/stick-guys-defense/index.html', i:'https://www.onlinegames.io/media/posts/476/responsive/Stick-Guys-Defense-xs.jpg', g:["1-player", "3d", "action", "armor", "battle", "crazy", "defense", "free", "mouse", "simulator", "stickman", "strategy", "tower-defense", "unity", "war"] },
+  { t:'Golf Bit', e:'https://cloud.onlinegames.io/games/2026/construct/328/golf-bit/game.html', i:'https://www.onlinegames.io/media/posts/1289/responsive/golf-bit-xs.webp', g:["1-player", "2d", "arcade", "avoid", "ball", "crazy", "free", "fun", "html5", "mobile", "mouse", "physics", "skill", "sports"] },
+  { t:'Julie Beauty Salon', e:'https://cloud.onlinegames.io/games/2021/1/julie-beauty-salon/index-og.html', i:'https://www.onlinegames.io/media/posts/1011/responsive/Julie-Beauty-Salon-xs.jpg', g:["2d", "free", "girl", "html5", "kids", "makeup", "mobile", "mouse"] },
+  { t:'Princess Influencer Salon', e:'https://www.onlinegames.io/games/2021/3/princess-influencer-salon/index.html', i:'https://www.onlinegames.io/media/posts/485/responsive/Princess-Influencer-Salon-xs.jpg', g:["2d", "dress-up", "fashion", "free", "girl", "kids", "makeup", "mobile", "mouse", "princess"] },
+  { t:'Fun Party Makeup', e:'https://www.onlinegames.io/games/2021/4/fun-party-makeup/index.html', i:'https://www.onlinegames.io/media/posts/723/responsive/Fun-Party-Makeup-xs.jpg', g:["1-player", "2d", "dress-up", "fashion", "free", "girl", "html5", "kids", "makeup", "mobile", "mouse"] },
+  { t:'Paradise Girls', e:'https://www.onlinegames.io/games/2021/4/paradise-girls/index.html', i:'https://www.onlinegames.io/media/posts/556/responsive/Pradise-Girls-xs.jpg', g:["2d", "dress-up", "free", "girl", "html5", "mobile", "mouse"] },
+  { t:'Nuts and Bolts Puzzle', e:'https://cloud.onlinegames.io/games/2025/unity/nuts-and-bolts-puzzle/index-og.html', i:'https://www.onlinegames.io/media/posts/965/responsive/nuts-and-bolts-puzzle-xs.jpg', g:["1-player", "2d", "arcade", "brain", "cozy", "free", "fun", "logic", "organizing", "puzzle"] },
+  { t:'Fire and Water', e:'https://www.onlinegames.io/games/2023/construct/179/fire-and-water/index.html', i:'https://www.onlinegames.io/media/posts/331/responsive/Fireboy-and-Watergirl-xs.jpg', g:["2-player", "2d", "adventure", "co-op", "free", "fun", "html5", "kids", "logic", "mobile", "puzzle"] }
+];
+
+</script>
+<script>
+(function () {
+  const grid = document.getElementById('grid');
+  const chipRow = document.getElementById('chipRow');
+  const searchInput = document.getElementById('search');
+  const resultCount = document.getElementById('resultCount');
+  const emptyState = document.getElementById('emptyState');
+
+  const browseSection = document.getElementById('browseSection');
+  const gridSection = document.getElementById('gridSection');
+  const playerSection = document.getElementById('playerSection');
+  const gameFrame = document.getElementById('gameFrame');
+  const playerTitle = document.getElementById('playerTitle');
+  const backBtn = document.getElementById('backBtn');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+  // Curated top categories for the chip row (kept short on purpose)
+  const FEATURED_TAGS = [
+    'kids', 'racing', 'shooting', 'arcade', 'puzzle', 'multiplayer',
+    'sports', 'girl', 'strategy', 'io-games', '3d'
+  ];
+
+  let activeTag = null;
+
+  function cardHTML(game, index) {
+    const tagPills = game.g.slice(0, 3)
+      .map((t) => `<span class="tag-pill">${t}</span>`)
+      .join('');
+    return `
+      <article class="card" tabindex="0" role="button" data-index="${index}" aria-label="Play ${game.t}">
+        <div class="card-media">
+          <img src="${game.i}" alt="${game.t}" loading="lazy">
+          <span class="play-glyph" aria-hidden="true">▶</span>
+        </div>
+        <div class="card-plate">
+          <h3 class="card-title">${game.t}</h3>
+          <div class="card-tags">${tagPills}</div>
+        </div>
+      </article>`;
+  }
+
+  function render() {
+    const q = searchInput.value.trim().toLowerCase();
+
+    const filtered = GAMES.filter((game) => {
+      const matchesTag = !activeTag || game.g.includes(activeTag);
+      const matchesQuery = !q ||
+        game.t.toLowerCase().includes(q) ||
+        game.g.some((t) => t.includes(q));
+      return matchesTag && matchesQuery;
+    });
+
+    grid.innerHTML = filtered.map((g) => cardHTML(g, GAMES.indexOf(g))).join('');
+    emptyState.hidden = filtered.length !== 0;
+    resultCount.textContent = `${filtered.length} enclosure${filtered.length === 1 ? '' : 's'}`;
+  }
+
+  function buildChips() {
+    const allChip = document.createElement('button');
+    allChip.className = 'chip active';
+    allChip.textContent = 'All';
+    allChip.addEventListener('click', () => {
+      activeTag = null;
+      updateChips(allChip);
+      render();
+    });
+    chipRow.appendChild(allChip);
+
+    FEATURED_TAGS.forEach((tag) => {
+      const chip = document.createElement('button');
+      chip.className = 'chip';
+      chip.textContent = tag.replace(/-/g, ' ');
+      chip.addEventListener('click', () => {
+        activeTag = tag;
+        updateChips(chip);
+        render();
+      });
+      chipRow.appendChild(chip);
+    });
+  }
+
+  function updateChips(activeEl) {
+    chipRow.querySelectorAll('.chip').forEach((c) => c.classList.remove('active'));
+    activeEl.classList.add('active');
+  }
+
+  // ----- Inline player: swap sections, no floating popup -----
+
+  function openGame(game) {
+    playerTitle.textContent = game.t;
+    gameFrame.src = game.e;
+
+    browseSection.hidden = true;
+    gridSection.hidden = true;
+    playerSection.hidden = false;
+
+    history.pushState({ game: game.t }, '', '#play');
+    window.scrollTo(0, 0);
+  }
+
+  function closeGame() {
+    playerSection.hidden = true;
+    browseSection.hidden = false;
+    gridSection.hidden = false;
+    gameFrame.src = ''; // stop the game / audio when leaving
+
+    if (location.hash === '#play') {
+      history.back();
+    }
+  }
+
+  grid.addEventListener('click', (e) => {
+    const card = e.target.closest('.card');
+    if (!card) return;
+    openGame(GAMES[Number(card.dataset.index)]);
+  });
+
+  grid.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.card');
+    if (!card) return;
+    e.preventDefault();
+    openGame(GAMES[Number(card.dataset.index)]);
+  });
+
+  backBtn.addEventListener('click', closeGame);
+
+  // Support the browser Back button too
+  window.addEventListener('popstate', () => {
+    if (location.hash !== '#play' && !playerSection.hidden) {
+      playerSection.hidden = true;
+      browseSection.hidden = false;
+      gridSection.hidden = false;
+      gameFrame.src = '';
+    }
+  });
+
+  fullscreenBtn.addEventListener('click', () => {
+    if (gameFrame.requestFullscreen) gameFrame.requestFullscreen();
+  });
+
+  searchInput.addEventListener('input', render);
+
+  buildChips();
+  render();
+})();
+
+</script>
+</body>
+</html>
